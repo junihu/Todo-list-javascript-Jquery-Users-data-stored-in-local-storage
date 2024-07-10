@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To Do</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="index.css">
+    <style>
+        .done {
+            text-decoration: line-through;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .list-group-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+    </style>
+</head>
+<body style="background-color: #7e7ec3;" onload="loadTasks()">
+    
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            
+            <div class="col-md-6">
+                <div style="background-color:rgb(23, 23, 49);" class="card">
+                    <h1 class="card-title text-center">To Do List</h1>
+                    <button id="logOut" onclick="logOut()">Log Out</button>
+                    <div class="card-body">
+                       
+                        <div class="form-group">
+                            <label for="task">Enter Task to list:</label>
+                            <input type="text" class="form-control" id="task">
+                            <button style="float: right;" type="submit" class="btn btn-danger"><a href="login.html">Exit</a></button>
+                            <button style="float: right;" type="submit" onclick="return addTask(event)" class="btn btn-success">Add</button>
+                           
+                           <br>
+                           <br>
+
+                              <div style="background-color: rgb(23, 23, 49);" class="col-md-12">
+                                <h5>Your To do List</h5>
+                                <ul id="myUL" class="list-group"> </ul>
+                              </div>
+                          </div>
+                        </div>
+                </div>
+            </div>
+        </div>
+    </div>
+   
+</body> 
+<script>
+    let loginStatus = JSON.parse(localStorage.getItem("loginStatus")) || false;
+    if(!loginStatus){
+        location.replace('login.html')
+    }
+    console.log(loginStatus)
+    function logOut(){
+        localStorage.setItem("loginStatus", false);
+        location.replace('login.html')
+    }
+function addTask(event) {
+    event.preventDefault();
+    let text = document.getElementById("task").value;
+    if (text !== "") {
+        let li = document.createElement("li");
+       // li.className = "list-group-item";
+        li.textContent = text;
+        
+        let deleteButton = document.createElement("button");
+        deleteButton.className = "btn btn-danger btn-sm";
+        deleteButton.textContent = "Delete";
+        deleteButton.onclick = function() {
+            li.remove();
+            saveTasks();
+        };
+
+        let doneButton = document.createElement("button");
+        doneButton.className = "btn btn-info btn-sm ml-2";
+        doneButton.textContent = "Mark as Done";
+ 
+        doneButton.onclick = function() {
+            li.classList.toggle("done");
+            saveTasks();
+        };
+
+        li.appendChild(deleteButton);
+        li.appendChild(doneButton);
+        document.getElementById("myUL").appendChild(li);
+        document.getElementById("task").value = ""; 
+        saveTasks();
+    }
+}
+
+function saveTasks() {
+    let tasks = [];
+    let listItems = document.getElementById("myUL").getElementsByTagName("li");
+    for (let i = 0; i < listItems.length; i++) {
+        let task = listItems[i].textContent.replace("DeleteMark as Done", "").trim();
+        let done = listItems[i].classList.contains("done");
+        tasks.push({ task: task, done: done });
+    }
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+}
+
+function loadTasks() {
+    let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+    for (let i = 0; i < tasks.length; i++) {
+        let li = document.createElement("li");
+        //li.className = "list-group-item";
+        li.textContent = tasks[i].task;
+
+        if (tasks[i].done) {
+            li.classList.add("done");
+        }
+
+        let deleteButton = document.createElement("button");
+        deleteButton.className = "btn btn-danger btn-sm";
+        deleteButton.textContent = "Delete";
+        deleteButton.style.float = "right";
+
+       
+        deleteButton.onclick = function() {
+            li.remove();
+            saveTasks();
+        };
+
+        let doneButton = document.createElement("button");
+        doneButton.className = "btn btn-info btn-sm ml-2 ";
+        doneButton.textContent = "Mark as Done";
+        doneButton.style.float = "right";
+        doneButton.onclick = function() {
+            li.classList.toggle("done");
+            saveTasks();
+        };
+
+        li.appendChild(deleteButton);
+        li.appendChild(doneButton);
+        document.getElementById("myUL").appendChild(li);
+    }
+}
+</script>
+</html>
